@@ -5,6 +5,7 @@ import cron from 'node-cron';
 import './database/schema';
 import marketRoutes from './routes/markets';
 import statisticsRoutes from './routes/statistics';
+import backtestRoutes from './routes/backtest';
 import { dataSyncService } from './services/dataSync';
 
 dotenv.config();
@@ -23,6 +24,7 @@ app.get('/api/health', (_req, res) => {
 // API routes
 app.use('/api', marketRoutes);
 app.use('/api', statisticsRoutes);
+app.use('/api', backtestRoutes);
 
 // Manual sync endpoint
 app.post('/api/sync', async (_req, res) => {

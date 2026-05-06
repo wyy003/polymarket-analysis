@@ -100,6 +100,49 @@ export interface MarketStatistics {
   }>;
 }
 
+export interface BacktestConfig {
+  marketId: string;
+  outcomeId: string;
+  startDate: string;
+  endDate: string;
+  initialCapital: number;
+  strategy: {
+    type: 'ma_crossover' | 'rsi_threshold' | 'bollinger_bands';
+    params: {
+      fastPeriod?: number;
+      slowPeriod?: number;
+      oversoldThreshold?: number;
+      overboughtThreshold?: number;
+      period?: number;
+      stdDev?: number;
+    };
+  };
+}
+
+export interface BacktestTrade {
+  timestamp: number;
+  type: 'buy' | 'sell';
+  price: number;
+  shares: number;
+  capital: number;
+}
+
+export interface BacktestResult {
+  trades: BacktestTrade[];
+  equityCurve: Array<{ timestamp: number; equity: number }>;
+  performance: {
+    totalReturn: number;
+    totalReturnPercentage: number;
+    totalTrades: number;
+    winningTrades: number;
+    losingTrades: number;
+    winRate: number;
+    maxDrawdown: number;
+    sharpeRatio: number;
+    finalCapital: number;
+  };
+}
+
 export const api = {
   async getMarkets(limit = 50, offset = 0): Promise<{ data: MarketWithOutcomes[]; count: number }> {
     const response = await axios.get(`${API_BASE_URL}/api/markets`, {
@@ -136,6 +179,11 @@ export const api = {
     const response = await axios.get(`${API_BASE_URL}/api/markets/${marketId}/statistics`, {
       params: { outcomeId },
     });
+    return response.data;
+  },
+
+  async runBacktest(config: BacktestConfig): Promise<BacktestResult> {
+    const response = await axios.post(`${API_BASE_URL}/api/backtest`, config);
     return response.data;
   },
 };

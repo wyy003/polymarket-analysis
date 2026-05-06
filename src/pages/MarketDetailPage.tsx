@@ -3,10 +3,12 @@ import { useState } from 'react';
 import { useMarketDetail } from '../hooks/useMarkets';
 import { PriceChart } from '../components/PriceChart';
 import StatisticsGrid from '../components/detail/StatisticsGrid';
+import { BacktestTab } from '../components/backtest/BacktestTab';
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useMarketDetail(id || '');
+  const [activeTab, setActiveTab] = useState<'analysis' | 'backtest'>('analysis');
 
   const [selectedIndicators, setSelectedIndicators] = useState({
     ma7: false,
@@ -147,19 +149,35 @@ export default function MarketDetailPage() {
             {/* Tab Headers */}
             <div className="border-b border-gray-200">
               <nav className="flex">
-                <button className="px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600">
+                <button
+                  onClick={() => setActiveTab('analysis')}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === 'analysis'
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
                   Analysis
                 </button>
-                <button className="px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700">
+                <button
+                  onClick={() => setActiveTab('backtest')}
+                  className={`px-6 py-4 text-sm font-medium ${
+                    activeTab === 'backtest'
+                      ? 'text-blue-600 border-b-2 border-blue-600'
+                      : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                >
                   Backtest
                 </button>
               </nav>
             </div>
 
-            {/* Tab Content - Analysis */}
+            {/* Tab Content */}
             <div className="p-6">
-              {/* Technical Indicators Control Panel */}
-              <div className="mb-6 bg-gray-50 rounded-lg p-4">
+              {activeTab === 'analysis' && (
+                <>
+                  {/* Technical Indicators Control Panel */}
+                  <div className="mb-6 bg-gray-50 rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3">Technical Indicators</h3>
                 <div className="flex flex-wrap gap-4">
                   <label className="flex items-center space-x-2 cursor-pointer">
@@ -229,10 +247,19 @@ export default function MarketDetailPage() {
                   outcomeId={outcomes[0]?.id || ''}
                 />
               </div>
-            </div>
-          </div>
+            </>
+          )}
+
+          {activeTab === 'backtest' && (
+            <BacktestTab
+              marketId={id || ''}
+              outcomeId={outcomes[0]?.id || ''}
+            />
+          )}
         </div>
       </div>
     </div>
-  );
+  </div>
+</div>
+);
 }
