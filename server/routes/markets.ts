@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import { marketRepository, outcomeRepository, priceHistoryRepository } from '../database/repositories';
+import { calculateAllIndicators } from '../services/indicators';
 
 const router = express.Router();
 
@@ -76,3 +77,46 @@ router.get('/markets/:id/price-history', (req: Request, res: Response) => {
 });
 
 export default router;
+
+// GET /api/markets/:id/indicators - Get technical indicators for a market
+router.get('/markets/:id/indicators', (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({ error: 'Invalid Market ID' });
+    }
+
+    const outcomeIdParam = req.query.outcomeId as string | undefined;
+    if (!outcomeIdParam) {
+      return res.status(400).json({ error: 'outcomeId query parameter is required' });
+    }
+
+    // Get price history for the specific outcome
+    const priceHistory = priceHistoryRepository.findByMarketId(id, 500);
+    
+    // Filter by outcome
+    const outcomePrices = priceHistory
+      .filter(p => p.outcome_id === outcomeIdParam)
+      .map(p => ({
+        timestamp: new Date(p.timestamp).getTime(),
+        price: p.price
+      }))
+      .sort((a, b) => a.timestamp - b.timestamp);
+
+    if (outcomePrices.length === 0) {
+      return res.json({
+        ma7: [],
+        ma20: [],
+        ma50: [],
+        rsi: [],
+        bollingerBands: []
+      });
+    }
+
+    const indicators = calculateAllIndicators(outcomePrices);
+    res.json(indicators);
+  } catch (error) {
+    console.error('Error calculating indicators:', error);
+    res.status(500).json({ error: 'Failed to calculate indicators' });
+  }
+});
