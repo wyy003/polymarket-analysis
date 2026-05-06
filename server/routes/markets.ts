@@ -12,7 +12,14 @@ router.get('/markets', (req: Request, res: Response) => {
     const offset = offsetParam ? parseInt(offsetParam, 10) : 0;
 
     const markets = marketRepository.findAll(limit, offset);
-    res.json({ data: markets, count: markets.length });
+
+    // Attach outcomes to each market
+    const marketsWithOutcomes = markets.map((market) => ({
+      ...market,
+      outcomes: outcomeRepository.findByMarketId(market.id),
+    }));
+
+    res.json({ data: marketsWithOutcomes, count: marketsWithOutcomes.length });
   } catch (error) {
     console.error('Error fetching markets:', error);
     res.status(500).json({ error: 'Failed to fetch markets' });

@@ -1,49 +1,102 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+import { useState } from 'react';
+import { useMarkets } from '../hooks/useMarkets';
+import MarketCard from '../components/MarketCard';
 
 export default function HomePage() {
-  const [health, setHealth] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  useEffect(() => {
-    const checkHealth = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/health`);
-        setHealth(response.data.status);
-        setLoading(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to connect to server');
-        setLoading(false);
-      }
-    };
+  const { data, isLoading, error } = useMarkets(100, 0);
 
-    checkHealth();
-  }, []);
+  // Filter markets based on search and category
+  const filteredMarkets = data?.data.filter((market) => {
+    const matchesSearch = market.question.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || market.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  }) || [];
+
+  // Extract unique categories
+  const categories = ['all', ...new Set(data?.data.map((m) => m.category).filter(Boolean) as string[])];
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">
-        Polymarket Markets
-      </h1>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold mb-2">Server Status</h2>
-        {loading && <p className="text-gray-600">Checking server...</p>}
-        {error && <p className="text-red-600">Error: {error}</p>}
-        {health && <p className="text-green-600">Server is {health}</p>}
-      </div>
-
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-blue-900 mb-2">
-          Phase 1: Basic Setup
-        </h2>
-        <p className="text-blue-800">
-          Frontend and backend are connected. Market data display coming in Phase 2.
+    <div className="max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Polymarket Markets
+        </h1>
+        <p className="text-gray-600">
+          {data?.count || 0} active prediction markets
         </p>
       </div>
+
+      {/* Search and Filters */}
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Search */}
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search markets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <div className="md:w-48">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat === 'all' ? 'All Categories' : cat}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <p className="mt-2 text-gray-600">Loading markets...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+          Failed to load markets: {error.message}
+        </div>
+      )}
+
+      {/* Markets Grid */}
+      {!isLoading && !error && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            {filteredMarkets.map((market) => (
+              <MarketCard
+                key={market.id}
+                market={market}
+                outcomes={market.outcomes}
+              />
+            ))}
+          </div>
+
+          {/* No Results */}
+          {filteredMarkets.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              No markets found matching your criteria
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
