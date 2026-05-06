@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useMarketDetail } from '../hooks/useMarkets';
 import { PriceChart } from '../components/PriceChart';
+import StatisticsGrid from '../components/detail/StatisticsGrid';
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -223,32 +224,10 @@ export default function MarketDetailPage() {
               {/* Statistics Grid */}
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-xs text-gray-500 mb-1">24h Volume</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      ${(market.volume / 1000000).toFixed(2)}M
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-xs text-gray-500 mb-1">Total Volume</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      ${(market.volume / 1000000).toFixed(2)}M
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-xs text-gray-500 mb-1">Liquidity</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      ${(market.liquidity / 1000).toFixed(0)}K
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-xs text-gray-500 mb-1">Data Points</div>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {priceHistory.length}
-                    </div>
-                  </div>
-                </div>
+                <StatisticsGrid
+                  marketId={id || ''}
+                  outcomeId={outcomes[0]?.id || ''}
+                />
               </div>
             </div>
           </div>

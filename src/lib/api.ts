@@ -65,6 +65,41 @@ export interface TechnicalIndicators {
   bollingerBands: BollingerBandsResult[];
 }
 
+export interface MarketStatistics {
+  currentPrice: number;
+  change24h: {
+    change: number;
+    changePercent: number;
+    currentPrice: number;
+    price24hAgo: number;
+  } | null;
+  totalVolume: number;
+  volume24h: number;
+  volatility: {
+    volatility: number;
+    period: string;
+  } | null;
+  spread: {
+    spread: number;
+    spreadPercent: number;
+  } | null;
+  technicalSummary: {
+    rsi: {
+      value: number;
+      status: 'overbought' | 'oversold' | 'neutral';
+    } | null;
+    maTrend: {
+      trend: 'bullish' | 'bearish' | 'neutral';
+      description: string;
+    } | null;
+  };
+  similarEvents: Array<{
+    id: string;
+    question: string;
+    similarity: number;
+  }>;
+}
+
 export const api = {
   async getMarkets(limit = 50, offset = 0): Promise<{ data: MarketWithOutcomes[]; count: number }> {
     const response = await axios.get(`${API_BASE_URL}/api/markets`, {
@@ -92,6 +127,13 @@ export const api = {
 
   async getIndicators(marketId: string, outcomeId: string): Promise<TechnicalIndicators> {
     const response = await axios.get(`${API_BASE_URL}/api/markets/${marketId}/indicators`, {
+      params: { outcomeId },
+    });
+    return response.data;
+  },
+
+  async getStatistics(marketId: string, outcomeId: string): Promise<MarketStatistics> {
+    const response = await axios.get(`${API_BASE_URL}/api/markets/${marketId}/statistics`, {
       params: { outcomeId },
     });
     return response.data;
