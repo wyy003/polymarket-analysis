@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useMarketDetail } from '../hooks/useMarkets';
+import { PriceChart } from '../components/PriceChart';
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -140,17 +141,13 @@ export default function MarketDetailPage() {
 
             {/* Tab Content - Analysis */}
             <div className="p-6">
-              {/* Price Chart Placeholder */}
+              {/* Price Chart */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Price History</h3>
-                <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
-                  <div className="text-center">
-                    <p className="text-gray-500">Price chart coming soon</p>
-                    <p className="text-sm text-gray-400 mt-1">
-                      {priceHistory.length} data points available
-                    </p>
-                  </div>
-                </div>
+                <PriceChart
+                  priceHistory={priceHistory}
+                  outcomes={outcomes}
+                />
               </div>
 
               {/* Statistics Grid */}
