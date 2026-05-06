@@ -40,6 +40,31 @@ export interface MarketWithOutcomes extends Market {
   outcomes: Outcome[];
 }
 
+export interface MAResult {
+  timestamp: number;
+  ma: number;
+}
+
+export interface RSIResult {
+  timestamp: number;
+  rsi: number;
+}
+
+export interface BollingerBandsResult {
+  timestamp: number;
+  upper: number;
+  middle: number;
+  lower: number;
+}
+
+export interface TechnicalIndicators {
+  ma7: MAResult[];
+  ma20: MAResult[];
+  ma50: MAResult[];
+  rsi: RSIResult[];
+  bollingerBands: BollingerBandsResult[];
+}
+
 export const api = {
   async getMarkets(limit = 50, offset = 0): Promise<{ data: MarketWithOutcomes[]; count: number }> {
     const response = await axios.get(`${API_BASE_URL}/api/markets`, {
@@ -62,6 +87,13 @@ export const api = {
 
   async triggerSync(): Promise<{ success: boolean; synced: number; errors: number }> {
     const response = await axios.post(`${API_BASE_URL}/api/sync`);
+    return response.data;
+  },
+
+  async getIndicators(marketId: string, outcomeId: string): Promise<TechnicalIndicators> {
+    const response = await axios.get(`${API_BASE_URL}/api/markets/${marketId}/indicators`, {
+      params: { outcomeId },
+    });
     return response.data;
   },
 };

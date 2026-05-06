@@ -1,10 +1,26 @@
 import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useMarketDetail } from '../hooks/useMarkets';
 import { PriceChart } from '../components/PriceChart';
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useMarketDetail(id || '');
+
+  const [selectedIndicators, setSelectedIndicators] = useState({
+    ma7: false,
+    ma20: false,
+    ma50: false,
+    rsi: false,
+    bollingerBands: false,
+  });
+
+  const toggleIndicator = (indicator: keyof typeof selectedIndicators) => {
+    setSelectedIndicators(prev => ({
+      ...prev,
+      [indicator]: !prev[indicator],
+    }));
+  };
 
   if (isLoading) {
     return (
@@ -141,12 +157,66 @@ export default function MarketDetailPage() {
 
             {/* Tab Content - Analysis */}
             <div className="p-6">
+              {/* Technical Indicators Control Panel */}
+              <div className="mb-6 bg-gray-50 rounded-lg p-4">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Technical Indicators</h3>
+                <div className="flex flex-wrap gap-4">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIndicators.ma7}
+                      onChange={() => toggleIndicator('ma7')}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">MA7</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIndicators.ma20}
+                      onChange={() => toggleIndicator('ma20')}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">MA20</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIndicators.ma50}
+                      onChange={() => toggleIndicator('ma50')}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">MA50</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIndicators.rsi}
+                      onChange={() => toggleIndicator('rsi')}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">RSI</span>
+                  </label>
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedIndicators.bollingerBands}
+                      onChange={() => toggleIndicator('bollingerBands')}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-gray-700">Bollinger Bands</span>
+                  </label>
+                </div>
+              </div>
+
               {/* Price Chart */}
               <div className="mb-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Price History</h3>
                 <PriceChart
                   priceHistory={priceHistory}
                   outcomes={outcomes}
+                  selectedIndicators={selectedIndicators}
+                  marketId={id || ''}
                 />
               </div>
 

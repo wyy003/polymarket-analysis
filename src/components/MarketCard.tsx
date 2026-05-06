@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Market, Outcome } from '../lib/api';
+import type { Market, Outcome } from '../lib/api';
 
 interface MarketCardProps {
   market: Market;
@@ -7,10 +7,8 @@ interface MarketCardProps {
 }
 
 export default function MarketCard({ market, outcomes }: MarketCardProps) {
-  // Calculate 24h price change (placeholder - will implement with real data)
   const yesOutcome = outcomes.find((o) => o.name === 'Yes');
   const noOutcome = outcomes.find((o) => o.name === 'No');
-  const currentPrice = yesOutcome?.price || 0;
 
   // Format volume
   const formatVolume = (vol: number) => {
