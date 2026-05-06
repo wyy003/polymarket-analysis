@@ -143,6 +143,18 @@ export interface BacktestResult {
   };
 }
 
+export interface ArbitrageOpportunity {
+  id: string;
+  market_id: string;
+  detected_at: string;
+  type: 'price_sum' | 'cross_market';
+  description: string;
+  potential_profit: number;
+  risk_level: 'low' | 'medium' | 'high';
+  market_question?: string;
+  outcomes?: Array<{ name: string; price: number }>;
+}
+
 export const api = {
   async getMarkets(limit = 50, offset = 0): Promise<{ data: MarketWithOutcomes[]; count: number }> {
     const response = await axios.get(`${API_BASE_URL}/api/markets`, {
@@ -184,6 +196,11 @@ export const api = {
 
   async runBacktest(config: BacktestConfig): Promise<BacktestResult> {
     const response = await axios.post(`${API_BASE_URL}/api/backtest`, config);
+    return response.data;
+  },
+
+  async getArbitrageOpportunities(): Promise<ArbitrageOpportunity[]> {
+    const response = await axios.get(`${API_BASE_URL}/api/arbitrage`);
     return response.data;
   },
 };

@@ -6,6 +6,7 @@ import './database/schema';
 import marketRoutes from './routes/markets';
 import statisticsRoutes from './routes/statistics';
 import backtestRoutes from './routes/backtest';
+import arbitrageRoutes from './routes/arbitrage';
 import { dataSyncService } from './services/dataSync';
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.get('/api/health', (_req, res) => {
 app.use('/api', marketRoutes);
 app.use('/api', statisticsRoutes);
 app.use('/api', backtestRoutes);
+app.use('/api', arbitrageRoutes);
 
 // Manual sync endpoint
 app.post('/api/sync', async (_req, res) => {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMarkets } from '../hooks/useMarkets';
 import MarketCard from '../components/MarketCard';
+import { ArbitrageOpportunities } from '../components/ArbitrageOpportunities';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -73,6 +74,13 @@ export default function HomePage() {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
           Failed to load markets: {error.message}
+        </div>
+      )}
+
+      {/* Arbitrage Opportunities Section */}
+      {!isLoading && !error && (
+        <div className="mb-8">
+          <ArbitrageOpportunities />
         </div>
       )}
 
