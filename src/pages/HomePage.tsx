@@ -1,20 +1,111 @@
-import { useState } from 'react';
 import { useMarkets } from '../hooks/useMarkets';
+import { useFilters } from '../hooks/useFilters';
 import MarketCard from '../components/MarketCard';
 import { ArbitrageOpportunities } from '../components/ArbitrageOpportunities';
+import { AdvancedFilters } from '../components/ui/AdvancedFilters';
+import { SortDropdown } from '../components/ui/SortDropdown';
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const {
+    searchQuery,
+    setSearchQuery,
+    debouncedSearchQuery,
+    category,
+    setCategory,
+    filters,
+    setFilters,
+    sortBy,
+    setSortBy,
+    resetFilters,
+    hasActiveFilters,
+  } = useFilters();
 
   const { data, isLoading, error } = useMarkets(100, 0);
 
-  // Filter markets based on search and category
-  const filteredMarkets = data?.data.filter((market) => {
-    const matchesSearch = market.question.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || market.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  }) || [];
+  // Filter and sort markets
+  const filteredAndSortedMarkets = (() => {
+    if (!data?.data) return [];
+
+    let result = data.data.filter((market) => {
+      // Search filter
+      const matchesSearch =
+        debouncedSearchQuery === '' ||
+        market.question.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        market.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase());
+
+      // Category filter
+      const matchesCategory = category === 'all' || market.category === category;
+
+      // Price filter (Yes outcome)
+      const yesOutcome = market.outcomes.find((o) => o.name === 'Yes');
+      const yesPrice = yesOutcome ? yesOutcome.price * 100 : null;
+      const matchesPriceMin = filters.priceMin === undefined || (yesPrice !== null && yesPrice >= filters.priceMin);
+      const matchesPriceMax = filters.priceMax === undefined || (yesPrice !== null && yesPrice <= filters.priceMax);
+
+      // Volume filter
+      const matchesVolume = filters.volumeMin === undefined || market.volume >= filters.volumeMin;
+
+      // End date filter
+      const matchesEndDateFrom =
+        filters.endDateFrom === undefined ||
+        !market.end_date ||
+        new Date(market.end_date) >= new Date(filters.endDateFrom);
+      const matchesEndDateTo =
+        filters.endDateTo === undefined ||
+        !market.end_date ||
+        new Date(market.end_date) <= new Date(filters.endDateTo);
+
+      // Active filter
+      const matchesActive = filters.activeOnly === undefined || filters.activeOnly === false || market.active === 1;
+
+      return (
+        matchesSearch &&
+        matchesCategory &&
+        matchesPriceMin &&
+        matchesPriceMax &&
+        matchesVolume &&
+        matchesEndDateFrom &&
+        matchesEndDateTo &&
+        matchesActive
+      );
+    });
+
+    // Sort
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'volume-desc':
+          return b.volume - a.volume;
+        case 'volume-asc':
+          return a.volume - b.volume;
+        case 'price-desc': {
+          const aPrice = a.outcomes.find((o) => o.name === 'Yes')?.price ?? 0;
+          const bPrice = b.outcomes.find((o) => o.name === 'Yes')?.price ?? 0;
+          return bPrice - aPrice;
+        }
+        case 'price-asc': {
+          const aPrice = a.outcomes.find((o) => o.name === 'Yes')?.price ?? 0;
+          const bPrice = b.outcomes.find((o) => o.name === 'Yes')?.price ?? 0;
+          return aPrice - bPrice;
+        }
+        case 'end-date-asc':
+          if (!a.end_date) return 1;
+          if (!b.end_date) return -1;
+          return new Date(a.end_date).getTime() - new Date(b.end_date).getTime();
+        case 'end-date-desc':
+          if (!a.end_date) return 1;
+          if (!b.end_date) return -1;
+          return new Date(b.end_date).getTime() - new Date(a.end_date).getTime();
+        case 'newest':
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case 'oldest':
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  })();
 
   // Extract unique categories
   const categories = ['all', ...new Set(data?.data.map((m) => m.category).filter(Boolean) as string[])];
@@ -48,8 +139,8 @@ export default function HomePage() {
           {/* Category Filter */}
           <div className="md:w-48">
             <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               {categories.map((cat) => (
@@ -59,6 +150,24 @@ export default function HomePage() {
               ))}
             </select>
           </div>
+        </div>
+      </div>
+
+      {/* Advanced Filters and Sort */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start mb-6">
+        <div className="flex-1">
+          <AdvancedFilters filters={filters} onFiltersChange={setFilters} onReset={resetFilters} />
+        </div>
+        <div className="flex items-center gap-4">
+          <SortDropdown value={sortBy} onChange={setSortBy} />
+          {hasActiveFilters && (
+            <button
+              onClick={resetFilters}
+              className="px-4 py-2 text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear All
+            </button>
+          )}
         </div>
       </div>
 
@@ -87,8 +196,11 @@ export default function HomePage() {
       {/* Markets Grid */}
       {!isLoading && !error && (
         <>
+          <div className="text-sm text-gray-600 mb-4">
+            Showing {filteredAndSortedMarkets.length} of {data?.data.length || 0} markets
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {filteredMarkets.map((market) => (
+            {filteredAndSortedMarkets.map((market) => (
               <MarketCard
                 key={market.id}
                 market={market}
@@ -98,7 +210,7 @@ export default function HomePage() {
           </div>
 
           {/* No Results */}
-          {filteredMarkets.length === 0 && (
+          {filteredAndSortedMarkets.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               No markets found matching your criteria
             </div>
