@@ -4,6 +4,7 @@ import { useMarketDetail } from '../hooks/useMarkets';
 import { PriceChart } from '../components/PriceChart';
 import StatisticsGrid from '../components/detail/StatisticsGrid';
 import { BacktestTab } from '../components/backtest/BacktestTab';
+import { ChartSkeleton, StatCardSkeleton } from '../components/ui/Skeleton';
 
 export default function MarketDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -27,10 +28,28 @@ export default function MarketDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading market details...</p>
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-4">
+          <div className="h-8 w-32 bg-gray-200 animate-pulse rounded" />
+        </div>
+        <div className="flex gap-6">
+          {/* Sidebar skeleton */}
+          <div className="w-1/4 space-y-4">
+            <div className="bg-white rounded-lg shadow p-4">
+              <div className="h-6 w-3/4 bg-gray-200 animate-pulse rounded mb-4" />
+              <div className="space-y-2">
+                <div className="h-4 w-full bg-gray-200 animate-pulse rounded" />
+                <div className="h-4 w-5/6 bg-gray-200 animate-pulse rounded" />
+              </div>
+            </div>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <StatCardSkeleton key={i} />
+            ))}
+          </div>
+          {/* Main content skeleton */}
+          <div className="flex-1">
+            <ChartSkeleton />
+          </div>
         </div>
       </div>
     );
@@ -40,13 +59,26 @@ export default function MarketDetailPage() {
     return (
       <div className="max-w-4xl mx-auto mt-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-red-900 mb-2">Error</h2>
-          <p className="text-red-800">
+          <div className="flex items-center gap-3 mb-4">
+            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 className="text-lg font-semibold text-red-900">Failed to Load Market</h2>
+          </div>
+          <p className="text-red-800 mb-4">
             {error?.message || 'Market not found'}
           </p>
-          <Link to="/" className="inline-block mt-4 text-blue-600 hover:text-blue-800">
-            ← Back to markets
-          </Link>
+          <div className="flex gap-3">
+            <Link to="/" className="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+              ← Back to markets
+            </Link>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );

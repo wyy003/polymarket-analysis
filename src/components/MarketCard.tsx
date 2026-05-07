@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { memo } from 'react';
 import type { Market, Outcome } from '../lib/api';
 
 interface MarketCardProps {
@@ -6,7 +7,7 @@ interface MarketCardProps {
   outcomes: Outcome[];
 }
 
-export default function MarketCard({ market, outcomes }: MarketCardProps) {
+function MarketCard({ market, outcomes }: MarketCardProps) {
   const yesOutcome = outcomes.find((o) => o.name === 'Yes');
   const noOutcome = outcomes.find((o) => o.name === 'No');
 
@@ -67,3 +68,5 @@ export default function MarketCard({ market, outcomes }: MarketCardProps) {
     </Link>
   );
 }
+
+export default memo(MarketCard);

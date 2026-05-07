@@ -4,6 +4,7 @@ import MarketCard from '../components/MarketCard';
 import { ArbitrageOpportunities } from '../components/ArbitrageOpportunities';
 import { AdvancedFilters } from '../components/ui/AdvancedFilters';
 import { SortDropdown } from '../components/ui/SortDropdown';
+import { MarketCardSkeleton } from '../components/ui/Skeleton';
 
 export default function HomePage() {
   const {
@@ -173,9 +174,10 @@ export default function HomePage() {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <p className="mt-2 text-gray-600">Loading markets...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <MarketCardSkeleton key={i} />
+          ))}
         </div>
       )}
 
