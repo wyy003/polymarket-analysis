@@ -147,7 +147,7 @@ export interface ArbitrageOpportunity {
   id: string;
   market_id: string;
   detected_at: string;
-  type: 'price_sum' | 'cross_market';
+  type: 'price_sum';
   description: string;
   potential_profit: number;
   risk_level: 'low' | 'medium' | 'high';

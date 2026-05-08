@@ -23,9 +23,3 @@ export interface PriceHistory {
   volume: number;
 }
 
-export interface ArbitrageOpportunity {
-  marketId: string;
-  type: 'binary' | 'multi-outcome';
-  expectedReturn: number;
-  confidence: number;
-}
