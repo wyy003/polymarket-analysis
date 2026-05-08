@@ -34,9 +34,9 @@ export function ArbitrageOpportunities() {
         <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-gray-900">No Arbitrage Opportunities</h3>
+        <h3 className="mt-2 text-sm font-medium text-gray-900">No Price-Sum Imbalances Detected</h3>
         <p className="mt-1 text-sm text-gray-500">
-          No profitable arbitrage opportunities detected at this time.
+          No markets with outcome price sums deviating from 1.00 found right now.
         </p>
       </div>
     );
@@ -56,14 +56,8 @@ export function ArbitrageOpportunities() {
   };
 
   const getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'price_sum':
-        return 'Price Sum';
-      case 'cross_market':
-        return 'Cross Market';
-      default:
-        return type;
-    }
+    if (type === 'price_sum') return 'Price Sum';
+    return type;
   };
 
   return (
