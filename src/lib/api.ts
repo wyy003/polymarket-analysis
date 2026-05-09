@@ -204,4 +204,21 @@ export const api = {
     const response = await axios.get(`${API_BASE_URL}/api/arbitrage`);
     return response.data;
   },
+
+  async getCrossVenueOpportunities(): Promise<import('../types/arbitrage').CrossVenueResponse> {
+    const response = await axios.get(`${API_BASE_URL}/api/arbitrage/cross-venue`);
+    return response.data;
+  },
+
+  async getCrossVenueStats(): Promise<{
+    total_opportunities: number;
+    tradeable_opportunities: number;
+    by_risk: { low: number; medium: number; high: number };
+    avg_net_edge: number;
+    max_net_edge: number;
+    timestamp: number;
+  }> {
+    const response = await axios.get(`${API_BASE_URL}/api/arbitrage/cross-venue/stats`);
+    return response.data;
+  },
 };
