@@ -204,4 +204,49 @@ export const api = {
     const response = await axios.get(`${API_BASE_URL}/api/arbitrage`);
     return response.data;
   },
+
+  async logPaperTrade(
+    opportunity: any,
+    targetSize: number,
+    source: 'manual' | 'auto_scan',
+    notes?: string
+  ): Promise<{ success: boolean; log: any }> {
+    const response = await axios.post(`${API_BASE_URL}/api/paper-trade/log`, {
+      opportunity,
+      targetSize,
+      source,
+      notes,
+    });
+    return response.data;
+  },
+
+  async getPaperTradeLogs(filters?: any): Promise<{
+    logs: any[];
+    count: number;
+  }> {
+    const response = await axios.get(`${API_BASE_URL}/api/paper-trade/logs`, {
+      params: filters,
+    });
+    return response.data;
+  },
+
+  async getPaperTradeStats(): Promise<any> {
+    const response = await axios.get(`${API_BASE_URL}/api/paper-trade/stats`);
+    return response.data;
+  },
+
+  async updatePaperTradeOutcome(
+    id: string,
+    outcome: any
+  ): Promise<{ success: boolean; message: string }> {
+    const response = await axios.patch(`${API_BASE_URL}/api/paper-trade/logs/${id}/outcome`, {
+      outcome,
+    });
+    return response.data;
+  },
+
+  async deletePaperTrade(id: string): Promise<{ success: boolean; message: string }> {
+    const response = await axios.delete(`${API_BASE_URL}/api/paper-trade/logs/${id}`);
+    return response.data;
+  },
 };
