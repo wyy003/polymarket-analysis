@@ -151,6 +151,7 @@ export interface ArbitrageOpportunity {
   description: string;
   potential_profit: number;
   risk_level: 'low' | 'medium' | 'high';
+  confidence: number;
   market_question?: string;
   outcomes?: Array<{ name: string; price: number }>;
 }

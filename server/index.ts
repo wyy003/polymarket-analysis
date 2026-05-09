@@ -39,8 +39,8 @@ app.post('/api/sync', async (_req, res) => {
   }
 });
 
-// Schedule automatic sync every 10 minutes
-cron.schedule('*/10 * * * *', async () => {
+// Schedule automatic sync every 2 minutes
+cron.schedule('*/2 * * * *', async () => {
   console.log('[Cron] Running scheduled market sync...');
   try {
     await dataSyncService.syncMarkets();

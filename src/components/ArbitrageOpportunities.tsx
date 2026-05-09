@@ -60,6 +60,26 @@ export function ArbitrageOpportunities() {
     return type;
   };
 
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 70) {
+      return 'text-green-600';
+    } else if (confidence >= 50) {
+      return 'text-yellow-600';
+    } else {
+      return 'text-red-600';
+    }
+  };
+
+  const getConfidenceLabel = (confidence: number) => {
+    if (confidence >= 70) {
+      return '高';
+    } else if (confidence >= 50) {
+      return '中';
+    } else {
+      return '低';
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
@@ -120,6 +140,15 @@ export function ArbitrageOpportunities() {
                 <div className="text-xs text-gray-500 mb-1">Potential Profit</div>
                 <div className="text-2xl font-bold text-green-600">
                   {opp.potential_profit.toFixed(2)}%
+                </div>
+                <div className="mt-2 flex items-center justify-end gap-1">
+                  <span className="text-xs text-gray-500">置信度:</span>
+                  <span className={`text-sm font-semibold ${getConfidenceColor(opp.confidence)}`}>
+                    {opp.confidence}分
+                  </span>
+                  <span className={`text-xs ${getConfidenceColor(opp.confidence)}`}>
+                    ({getConfidenceLabel(opp.confidence)})
+                  </span>
                 </div>
                 <Link
                   to={`/market/${opp.market_id}`}

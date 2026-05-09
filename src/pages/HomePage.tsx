@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useMarkets } from '../hooks/useMarkets';
 import { useFilters } from '../hooks/useFilters';
 import MarketCard from '../components/MarketCard';
@@ -5,8 +6,15 @@ import { ArbitrageOpportunities } from '../components/ArbitrageOpportunities';
 import { AdvancedFilters } from '../components/ui/AdvancedFilters';
 import { SortDropdown } from '../components/ui/SortDropdown';
 import { MarketCardSkeleton } from '../components/ui/Skeleton';
+import { RefreshCw } from 'lucide-react';
+import { api } from '../lib/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { useToast } from '../components/ui/Toast';
 
 export default function HomePage() {
+  const [isSyncing, setIsSyncing] = useState(false);
+  const queryClient = useQueryClient();
+  const { addToast } = useToast();
   const {
     searchQuery,
     setSearchQuery,
@@ -22,6 +30,26 @@ export default function HomePage() {
   } = useFilters();
 
   const { data, isLoading, error } = useMarkets(100, 0);
+
+  const handleRefresh = async () => {
+    setIsSyncing(true);
+    try {
+      const result = await api.triggerSync();
+      if (result.success) {
+        addToast(`Synced ${result.synced} markets successfully`, 'success');
+        // Invalidate queries to refetch data
+        queryClient.invalidateQueries({ queryKey: ['markets'] });
+        queryClient.invalidateQueries({ queryKey: ['arbitrage'] });
+      } else {
+        addToast('Sync completed with some errors', 'warning');
+      }
+    } catch (error) {
+      addToast('Failed to sync markets', 'error');
+      console.error('Sync error:', error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Filter and sort markets
   const filteredAndSortedMarkets = (() => {
@@ -114,13 +142,23 @@ export default function HomePage() {
   return (
     <div className="max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Polymarket Markets
-        </h1>
-        <p className="text-gray-600">
-          {data?.count || 0} active prediction markets
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Polymarket Markets
+          </h1>
+          <p className="text-gray-600">
+            {data?.count || 0} active prediction markets
+          </p>
+        </div>
+        <button
+          onClick={handleRefresh}
+          disabled={isSyncing}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          {isSyncing ? 'Syncing...' : 'Refresh Data'}
+        </button>
       </div>
 
       {/* Search and Filters */}
