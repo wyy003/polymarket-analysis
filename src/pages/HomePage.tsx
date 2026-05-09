@@ -3,6 +3,7 @@ import { useMarkets } from '../hooks/useMarkets';
 import { useFilters } from '../hooks/useFilters';
 import MarketCard from '../components/MarketCard';
 import { ArbitrageOpportunities } from '../components/ArbitrageOpportunities';
+import CrossVenueOpportunities from '../components/CrossVenueOpportunities';
 import { AdvancedFilters } from '../components/ui/AdvancedFilters';
 import { SortDropdown } from '../components/ui/SortDropdown';
 import { MarketCardSkeleton } from '../components/ui/Skeleton';
@@ -226,7 +227,14 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* Arbitrage Opportunities Section */}
+      {/* Cross-Venue Arbitrage Opportunities Section */}
+      {!isLoading && !error && (
+        <div className="mb-8">
+          <CrossVenueOpportunities />
+        </div>
+      )}
+
+      {/* Same-Platform Arbitrage Opportunities Section */}
       {!isLoading && !error && (
         <div className="mb-8">
           <ArbitrageOpportunities />
