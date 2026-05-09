@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "pair_id": "demo-pair-001",
+    "polymarket_market_id": "0x84f8b70331323c2fba97d7ceaa9a35fb645a0770d0dbff169d07f24f376766e9",
+    "polymarket_yes_token_id": "108999723207897941876452935557011604067917389120996960199512481363958770540884",
+    "polymarket_no_token_id": "71119187057490332350649215294996650508126922004622323146138917695925229672837",
+    "kalshi_ticker": "DEMO-TRUMP-2026",
+    "mapping": "POLY_YES_EQUALS_KALSHI_YES",
+    "resolution_risk": "medium",
+    "notes": "Demo pair for testing - Trump out as President before GTA VI? Kalshi market is simulated for testing purposes.",
+    "created_at": "2026-05-09T09:50:00Z",
+    "verified_by": "manual"
+  }
+]
