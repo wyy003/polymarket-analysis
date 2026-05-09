@@ -69,14 +69,30 @@ export function initializeDatabase() {
     )
   `);
 
+  // Hot markets table - for tracking markets that should get real-time updates
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS hot_markets (
+      market_id TEXT PRIMARY KEY,
+      priority INTEGER DEFAULT 1,
+      update_method TEXT DEFAULT 'websocket',
+      added_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      last_updated TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (market_id) REFERENCES markets(id) ON DELETE CASCADE
+    )
+  `);
+
   // Create indexes for performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_markets_category ON markets(category);
     CREATE INDEX IF NOT EXISTS idx_markets_active ON markets(active);
     CREATE INDEX IF NOT EXISTS idx_markets_updated ON markets(updated_at);
+    CREATE INDEX IF NOT EXISTS idx_markets_volume ON markets(volume);
+    CREATE INDEX IF NOT EXISTS idx_markets_liquidity ON markets(liquidity);
     CREATE INDEX IF NOT EXISTS idx_outcomes_market ON outcomes(market_id);
     CREATE INDEX IF NOT EXISTS idx_price_history_market ON price_history(market_id);
     CREATE INDEX IF NOT EXISTS idx_price_history_timestamp ON price_history(timestamp);
+    CREATE INDEX IF NOT EXISTS idx_hot_markets_priority ON hot_markets(priority);
+    CREATE INDEX IF NOT EXISTS idx_hot_markets_method ON hot_markets(update_method);
   `);
 
   console.log('Database initialized successfully');

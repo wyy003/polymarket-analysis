@@ -7,7 +7,12 @@ import marketRoutes from './routes/markets';
 import statisticsRoutes from './routes/statistics';
 import backtestRoutes from './routes/backtest';
 import arbitrageRoutes from './routes/arbitrage';
+import hotMarketsRoutes from './routes/hotMarkets';
+import realtimeRoutes from './routes/realtime';
+import syncStatusRoutes from './routes/sync-status';
 import { dataSyncService } from './services/dataSync';
+import { hotMarketManager } from './services/hotMarketManager';
+import { realtimeSyncService } from './services/realtimeSync';
 
 dotenv.config();
 
@@ -27,6 +32,9 @@ app.use('/api', marketRoutes);
 app.use('/api', statisticsRoutes);
 app.use('/api', backtestRoutes);
 app.use('/api', arbitrageRoutes);
+app.use('/api', hotMarketsRoutes);
+app.use('/api', realtimeRoutes);
+app.use('/api', syncStatusRoutes);
 
 // Manual sync endpoint
 app.post('/api/sync', async (_req, res) => {
@@ -39,13 +47,23 @@ app.post('/api/sync', async (_req, res) => {
   }
 });
 
-// Schedule automatic sync every 2 minutes
-cron.schedule('*/2 * * * *', async () => {
-  console.log('[Cron] Running scheduled market sync...');
+// Schedule automatic sync every 30 seconds (parallel)
+cron.schedule('*/30 * * * * *', async () => {
+  console.log('[Cron] Running scheduled parallel market sync...');
   try {
-    await dataSyncService.syncMarkets();
+    await dataSyncService.syncMarketsParallel();
   } catch (error) {
     console.error('[Cron] Sync failed:', error);
+  }
+});
+
+// Schedule hot markets refresh every 5 minutes
+cron.schedule('*/5 * * * *', async () => {
+  console.log('[Cron] Refreshing hot markets list...');
+  try {
+    await hotMarketManager.updateHotMarkets();
+  } catch (error) {
+    console.error('[Cron] Hot markets refresh failed:', error);
   }
 });
 
@@ -54,6 +72,14 @@ cron.schedule('*/2 * * * *', async () => {
   console.log('[Startup] Running initial market sync...');
   try {
     await dataSyncService.syncMarkets();
+
+    // Initialize hot markets list
+    console.log('[Startup] Initializing hot markets...');
+    await hotMarketManager.updateHotMarkets();
+
+    // Start real-time sync service (WebSocket)
+    console.log('[Startup] Starting real-time sync service...');
+    await realtimeSyncService.start();
   } catch (error) {
     console.error('[Startup] Initial sync failed:', error);
   }

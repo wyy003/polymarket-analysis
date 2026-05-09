@@ -28,6 +28,14 @@ export interface PriceHistory {
   timestamp: string;
 }
 
+export interface HotMarket {
+  market_id: string;
+  priority: number;
+  update_method: 'websocket' | 'polling';
+  added_at: string;
+  last_updated: string;
+}
+
 export const marketRepository = {
   findAll: (limit = 50, offset = 0) => {
     return db
@@ -101,5 +109,47 @@ export const priceHistoryRepository = {
     `);
 
     return stmt.run(marketId, outcomeId, price);
+  },
+};
+
+export const hotMarketRepository = {
+  findAll: () => {
+    return db
+      .prepare('SELECT * FROM hot_markets ORDER BY priority ASC, added_at DESC')
+      .all() as HotMarket[];
+  },
+
+  findById: (marketId: string) => {
+    return db
+      .prepare('SELECT * FROM hot_markets WHERE market_id = ?')
+      .get(marketId) as HotMarket | undefined;
+  },
+
+  upsert: (marketId: string, updateMethod: 'websocket' | 'polling' = 'websocket', priority = 1) => {
+    const stmt = db.prepare(`
+      INSERT INTO hot_markets (market_id, priority, update_method)
+      VALUES (?, ?, ?)
+      ON CONFLICT(market_id) DO UPDATE SET
+        priority = excluded.priority,
+        update_method = excluded.update_method,
+        last_updated = CURRENT_TIMESTAMP
+    `);
+
+    return stmt.run(marketId, priority, updateMethod);
+  },
+
+  delete: (marketId: string) => {
+    const stmt = db.prepare('DELETE FROM hot_markets WHERE market_id = ?');
+    return stmt.run(marketId);
+  },
+
+  count: () => {
+    const result = db.prepare('SELECT COUNT(*) as count FROM hot_markets').get() as { count: number };
+    return result.count;
+  },
+
+  deleteAll: () => {
+    const stmt = db.prepare('DELETE FROM hot_markets');
+    return stmt.run();
   },
 };
