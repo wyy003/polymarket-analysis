@@ -10,6 +10,8 @@ const CrossVenueOpportunities = () => {
   const [showAll, setShowAll] = useState(false);
   const [riskFilter, setRiskFilter] = useState<'all' | 'low' | 'medium' | 'high'>('all');
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [countdown, setCountdown] = useState(30);
 
   const fetchOpportunities = async () => {
     try {
@@ -31,6 +33,29 @@ const CrossVenueOpportunities = () => {
   useEffect(() => {
     fetchOpportunities();
   }, [showAll]);
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const interval = setInterval(() => {
+      fetchOpportunities();
+      setCountdown(30);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, showAll]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const timer = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 30));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [autoRefresh]);
 
   const filteredOpportunities = opportunities.filter((opp) => {
     if (riskFilter === 'all') return true;
@@ -76,28 +101,53 @@ const CrossVenueOpportunities = () => {
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Cross-Venue Arbitrage</h2>
             <p className="text-sm text-gray-600 mt-1">
-              Polymarket ↔ Kalshi opportunities
+              Polymarket ↔ Manifold Markets opportunities
             </p>
           </div>
-          <button
-            onClick={fetchOpportunities}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setAutoRefresh(!autoRefresh)}
+              className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                autoRefresh
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-              />
-            </svg>
-            Refresh
-          </button>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              {autoRefresh ? `Auto (${countdown}s)` : 'Auto Off'}
+            </button>
+            <button
+              onClick={fetchOpportunities}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh
+            </button>
+          </div>
         </div>
 
         {lastUpdated && (

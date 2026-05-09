@@ -1,14 +1,50 @@
 [
   {
-    "pair_id": "demo-pair-001",
-    "polymarket_market_id": "0x84f8b70331323c2fba97d7ceaa9a35fb645a0770d0dbff169d07f24f376766e9",
-    "polymarket_yes_token_id": "108999723207897941876452935557011604067917389120996960199512481363958770540884",
-    "polymarket_no_token_id": "71119187057490332350649215294996650508126922004622323146138917695925229672837",
-    "kalshi_ticker": "DEMO-TRUMP-2026",
+    "pair_id": "poly-manifold-england-wc2026",
+    "polymarket_market_id": "0x375409bc5eeeff961e82b479caeccc20f33d15738e5bce1186d628aa3d9dfb1f",
+    "polymarket_yes_token_id": "115556263888245616435851357148058235707004733438163639091106356867234218207169",
+    "polymarket_no_token_id": "77121637225348873006259930776623502125079210522997384841464684944292365296940",
+    "kalshi_ticker": "MANIFOLD:Hdj48pazsKU6a1e6rPk6:f4dafc0804c8",
     "mapping": "POLY_YES_EQUALS_KALSHI_YES",
-    "resolution_risk": "medium",
-    "notes": "Demo pair for testing - Trump out as President before GTA VI? Kalshi market is simulated for testing purposes.",
-    "created_at": "2026-05-09T09:50:00Z",
+    "resolution_risk": "low",
+    "notes": "England to win 2026 FIFA World Cup - Polymarket binary market vs Manifold multi-choice answer. Polymarket market ID 558935, Manifold answer probability ~19%.",
+    "created_at": "2026-05-09T10:30:00Z",
+    "verified_by": "manual"
+  },
+  {
+    "pair_id": "poly-manifold-brazil-wc2026",
+    "polymarket_market_id": "0x30d55d8124ee1e12dabe89201badc45669b81dff69e4ce44d961f32878ec178a",
+    "polymarket_yes_token_id": "27576533317283401577758999384642760405921738493660383550832555714312627457443",
+    "polymarket_no_token_id": "52986718774908357330412653486471347449818893503063830313445318937088822580057",
+    "kalshi_ticker": "MANIFOLD:Hdj48pazsKU6a1e6rPk6:18db1762e57e",
+    "mapping": "POLY_YES_EQUALS_KALSHI_YES",
+    "resolution_risk": "low",
+    "notes": "Brazil to win 2026 FIFA World Cup. Polymarket price ~8.55%, Manifold probability ~35%. Large price difference.",
+    "created_at": "2026-05-09T10:35:00Z",
+    "verified_by": "manual"
+  },
+  {
+    "pair_id": "poly-manifold-france-wc2026",
+    "polymarket_market_id": "0x9b6fef249040fd17e9c107955b37ac2c3e923509b6b0ff01cc463a331ddeb894",
+    "polymarket_yes_token_id": "108233603819467706476318984012158651931658302669301887462181073562758483842092",
+    "polymarket_no_token_id": "32270411694523539495262303868629477861017829722282576458031815333486368239544",
+    "kalshi_ticker": "MANIFOLD:Hdj48pazsKU6a1e6rPk6:e803f72a9644",
+    "mapping": "POLY_YES_EQUALS_KALSHI_YES",
+    "resolution_risk": "low",
+    "notes": "France to win 2026 FIFA World Cup. Polymarket price ~16.95%, Manifold probability ~30%. Significant price difference.",
+    "created_at": "2026-05-09T10:35:00Z",
+    "verified_by": "manual"
+  },
+  {
+    "pair_id": "poly-manifold-argentina-wc2026",
+    "polymarket_market_id": "0x0c4cd2055d6ea89354ffddc55d6dbcef9355748112ea952fc925f3db6a5c457f",
+    "polymarket_yes_token_id": "18812649149814341758733697580460697418474693998558159483117100240528657629879",
+    "polymarket_no_token_id": "115428153746996892211798999366308897078723117634059783423375188043903703749062",
+    "kalshi_ticker": "MANIFOLD:Hdj48pazsKU6a1e6rPk6:163b7f9610da",
+    "mapping": "POLY_YES_EQUALS_KALSHI_YES",
+    "resolution_risk": "low",
+    "notes": "Argentina to win 2026 FIFA World Cup. Polymarket price ~8.65%, Manifold probability ~10%. Small price difference.",
+    "created_at": "2026-05-09T10:35:00Z",
     "verified_by": "manual"
   }
 ]

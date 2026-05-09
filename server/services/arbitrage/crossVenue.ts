@@ -3,6 +3,8 @@ import { calculateFees } from './feeEngine.js';
 import { analyzeLiquidity, isOrderbookStale } from './liquidity.js';
 import * as marketPairs from '../marketPairs.js';
 import * as polymarketOrderbook from '../polymarketOrderbook.js';
+import * as kalshiService from '../kalshi.js';
+import * as manifoldService from '../manifold.js';
 
 /**
  * Calculate cross-venue arbitrage opportunities for all confirmed market pairs
@@ -205,11 +207,40 @@ async function fetchPolymarketOrderbook(
 }
 
 /**
- * Fetch Kalshi orderbook (placeholder - will integrate with Kalshi service)
+ * Fetch Kalshi orderbook or Manifold probability
  */
 async function fetchKalshiOrderbook(ticker: string): Promise<any | null> {
-  // TODO: Integrate with Kalshi orderbook service from PR#3
-  // For now, return null to avoid errors
-  console.warn(`[CrossVenue] Kalshi orderbook integration pending for ${ticker}`);
-  return null;
+  try {
+    // Check if this is a Manifold market (format: MANIFOLD:marketId:answerId)
+    if (ticker.startsWith('MANIFOLD:')) {
+      const parts = ticker.split(':');
+      if (parts.length === 3) {
+        const [, marketId, answerId] = parts;
+        const probability = await manifoldService.getAnswerProbability(marketId, answerId);
+
+        if (probability === null) {
+          console.warn(`[CrossVenue] Manifold answer not found: ${ticker}`);
+          return null;
+        }
+
+        // Convert Manifold probability to orderbook-like structure
+        // Manifold probability represents the YES side
+        return {
+          ticker,
+          impliedYesAsk: probability,
+          impliedNoAsk: 1 - probability,
+          bestYesBid: probability * 0.99, // Approximate bid with 1% spread
+          bestNoBid: (1 - probability) * 0.99,
+          timestamp: Date.now(),
+          source: 'manifold',
+        };
+      }
+    }
+
+    // Otherwise, fetch from Kalshi
+    return await kalshiService.getOrderbook(ticker);
+  } catch (error) {
+    console.error(`Error fetching orderbook for ${ticker}:`, error);
+    return null;
+  }
 }

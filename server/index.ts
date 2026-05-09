@@ -11,6 +11,7 @@ import hotMarketsRoutes from './routes/hotMarkets';
 import realtimeRoutes from './routes/realtime';
 import syncStatusRoutes from './routes/sync-status';
 import kalshiRoutes from './routes/kalshi';
+import manifoldRoutes from './routes/manifold';
 import paperTradeRoutes from './routes/paperTrade';
 import crossVenueArbitrageRoutes from './routes/crossVenueArbitrage';
 import marketPairsRoutes from './routes/marketPairs';
@@ -18,6 +19,7 @@ import polymarketOrderbookRoutes from './routes/polymarketOrderbook';
 import { dataSyncService } from './services/dataSync';
 import { hotMarketManager } from './services/hotMarketManager';
 import { realtimeSyncService } from './services/realtimeSync';
+import { crossVenueRealtimeService } from './services/crossVenueRealtime.js';
 
 dotenv.config();
 
@@ -41,6 +43,7 @@ app.use('/api', hotMarketsRoutes);
 app.use('/api', realtimeRoutes);
 app.use('/api', syncStatusRoutes);
 app.use('/api', kalshiRoutes);
+app.use('/api', manifoldRoutes);
 app.use('/api', paperTradeRoutes);
 app.use('/api', crossVenueArbitrageRoutes);
 app.use('/api', marketPairsRoutes);
@@ -90,6 +93,10 @@ cron.schedule('*/5 * * * *', async () => {
     // Start real-time sync service (WebSocket)
     console.log('[Startup] Starting real-time sync service...');
     await realtimeSyncService.start();
+
+    // Start cross-venue arbitrage real-time service
+    console.log('[Startup] Starting cross-venue arbitrage real-time service...');
+    await crossVenueRealtimeService.start();
   } catch (error) {
     console.error('[Startup] Initial sync failed:', error);
   }
