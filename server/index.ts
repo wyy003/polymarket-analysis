@@ -12,6 +12,9 @@ import realtimeRoutes from './routes/realtime';
 import syncStatusRoutes from './routes/sync-status';
 import kalshiRoutes from './routes/kalshi';
 import paperTradeRoutes from './routes/paperTrade';
+import crossVenueArbitrageRoutes from './routes/crossVenueArbitrage';
+import marketPairsRoutes from './routes/marketPairs';
+import polymarketOrderbookRoutes from './routes/polymarketOrderbook';
 import { dataSyncService } from './services/dataSync';
 import { hotMarketManager } from './services/hotMarketManager';
 import { realtimeSyncService } from './services/realtimeSync';
@@ -39,6 +42,9 @@ app.use('/api', realtimeRoutes);
 app.use('/api', syncStatusRoutes);
 app.use('/api', kalshiRoutes);
 app.use('/api', paperTradeRoutes);
+app.use('/api', crossVenueArbitrageRoutes);
+app.use('/api', marketPairsRoutes);
+app.use('/api/polymarket', polymarketOrderbookRoutes);
 
 // Manual sync endpoint
 app.post('/api/sync', async (_req, res) => {
